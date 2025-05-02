@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://p.trellocdn.com/power-up.min.css">
+  <script src="https://p.trellocdn.com/power-up.min.js"></script>
+  <style>
+    .auth-form {
+      padding: 1em;
+    }
+    input {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-form">
+    <p>Wprowadź swój API Token z Toggl Track:</p>
+    <input type="password" id="api-token" placeholder="API Token">
+    <button id="save-btn" class="mod-primary">Zapisz</button>
+  </div>
+
+  <script>
+    var t = window.TrelloPowerUp.iframe();
+    
+    // Załaduj zapisany token (jeśli istnieje)
+    t.get('member', 'private', 'togglApiToken')
+      .then(function(token) {
+        if (token) {
+          document.getElementById('api-token').value = token;
+        }
+      });
+    
+    // Zapisz token po kliknięciu przycisku
+    document.getElementById('save-btn').addEventListener('click', function() {
+      var token = document.getElementById('api-token').value;
+      if (token) {
+        t.set('member', 'private', 'togglApiToken', token)
+          .then(function() {
+            t.closePopup();
+          });
+      }
+    });
+  </script>
+</body>
+</html>

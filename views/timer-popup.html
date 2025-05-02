@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://p.trellocdn.com/power-up.min.css">
+  <script src="https://p.trellocdn.com/power-up.min.js"></script>
+  <script src="../js/toggl-api.js"></script>
+  <style>
+    .timer-container {
+      padding: 1em;
+      text-align: center;
+    }
+    .timer-status {
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+    .timer-actions button {
+      margin: 0 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="timer-container">
+    <div class="timer-status" id="status">
+      Ładowanie...
+    </div>
+    <div class="timer-actions">
+      <button id="start-btn" class="mod-primary">Rozpocznij timer</button>
+      <button id="stop-btn" class="mod-danger" style="display:none">Zatrzymaj timer</button>
+    </div>
+  </div>
+
+  <script>
+    var t = window.TrelloPowerUp.iframe();
+    var togglApi;
+    var cardName;
+    
+    // Pobierz nazwę karty i token API
+    Promise.all([
+      t.card('name'),
+      t.get('member', 'private', 'togglApiToken')
+    ])
+    .then(function(results) {
+      cardName = results[0].name;
+      togglApi = TogglAPI.init(results[1]);
+      
+      // Sprawdź aktualny status timera
+      return togglApi.getCurrentTimer();
+    })
+    .then(function(timer) {
+      var statusEl = document.getElementById('status');
+      var startBtn = document.getElementById('start-btn');
+      var stopBtn = document.getElementById('stop-btn');
+      
+      if (timer && timer.id) {
+        // Timer jest aktywny
+        statusEl.textContent = 'Timer aktywny: ' + timer.description;
+        startBtn.style.display = 'none';
+        stopBtn.style.display = 'inline-block';
+      } else {
+        // Brak aktywnego timera
+        statusEl.textContent = 'Brak aktywnego timera';
+        startBtn.style.display = 'inline-block';
+        stopBtn.style.display = 'none';
+      }
+    });
+    
+    // Obsługa rozpoczęcia timera
+    document.getElementById('start-btn').addEventListener('click', function() {
+      togglApi.startTimer(cardName)
+        .then(function(response) {
+          document.getElementById('status').textContent = 'Timer rozpoczęty!';
+          document.getElementById('start-btn').style.display = 'none';
+          document.getElementById('stop-btn').style.display = 'inline-block';
+          
+          // Odśwież kartę, aby zaktualizować Badge
+          t.card('id')
+            .then(function(card) {
+              return t.updateModels();
+            });
+        });
+    });
+    
+    // Obsługa zatrzymania timera
+    document.getElementById('stop-btn').addEventListener('click', function() {
+      togglApi.stopTimer()
+        .then(function(response) {
+          document.getElementById('status').textContent = 'Timer zatrzymany!';
+          document.getElementById('start-btn').style.display = 'inline-block';
+          document.getElementById('stop-btn').style.display = 'none';
+          
+          // Odśwież kartę, aby zaktualizować Badge
+          t.card('id')
+            .then(function(card) {
+              return t.updateModels();
+            });
+        });
+    });
+  </script>
+</body>
+</html>
