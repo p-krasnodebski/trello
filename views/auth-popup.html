@@ -5,8 +5,8 @@
   <link rel="stylesheet" href="https://p.trellocdn.com/power-up.min.css">
   <script src="https://p.trellocdn.com/power-up.min.js"></script>
   <style>
-    .auth-form {
-      padding: 1em;
+    .auth-container {
+      margin: 1em;
     }
     input {
       width: 100%;
@@ -15,16 +15,17 @@
   </style>
 </head>
 <body>
-  <div class="auth-form">
-    <p>Wprowadź swój API Token z Toggl Track:</p>
-    <input type="password" id="api-token" placeholder="API Token">
+  <div class="auth-container">
+    <label for="api-token">Klucz API Toggl Track:</label>
+    <input type="password" id="api-token" placeholder="Token API Toggl">
     <button id="save-btn" class="mod-primary">Zapisz</button>
   </div>
 
   <script>
+    console.log('Strona auth.html została załadowana!');
     var t = window.TrelloPowerUp.iframe();
     
-    // Załaduj zapisany token (jeśli istnieje)
+    // Sprawdź, czy jest już zapisany token
     t.get('member', 'private', 'togglApiToken')
       .then(function(token) {
         if (token) {
